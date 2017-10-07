@@ -1,0 +1,127 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /agents/submitted/survey:
+    x-swagger-router-controller: agents
+    get:
+      description: Returns total list of agents who submitted survey
+      # used as the method name of the controller
+      operationId: agentsSubmittedSurvey
+      parameters:
+        - $ref: "#/parameters/StartDate"
+        - $ref: "#/parameters/EndDate"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /survey/submitted:
+    x-swagger-router-controller: survey
+    get:
+      description: Returns total list of agents who submitted survey
+      # used as the method name of the controller
+      operationId: surveySubmitted
+      parameters:
+        - $ref: "#/parameters/StartDate"
+        - $ref: "#/parameters/EndDate"
+        - $ref: "#/parameters/DocType"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      # used as the method name of the controller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/HelloWorldResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  HelloWorldResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  SuccessResponse:
+    required:
+      - status
+      - message
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+
+parameters:
+  StartDate:
+    name: dateStart
+    in: query
+    description: The start date when agents submitted survey
+    required: true
+    type: string
+  EndDate:
+    name: dateEnd
+    in: query
+    description: The end date when agents submitted survey
+    required: true
+    type: string
+  DocType:
+    name: docType
+    in: query
+    description: The type of survey to search
+    required: true
+    type: string
+    enum: [preEvent, postEvent]

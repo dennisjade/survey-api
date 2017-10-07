@@ -1,0 +1,3 @@
+mongoimport --host ds113445.mlab.com --port 13445 --db nextbillion --collection surveys --username next --password billion --type json --jsonArray --file post-event-data.json
+
+mongo ds113445.mlab.com:13445/nextbillion -u <dbuser> -p <dbpassword>
