@@ -8,6 +8,7 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
+    "axios": "^0.16.2",
     "bluebird": "^3.5.1",
     "express": "^4.12.3",
     "mongoose": "^4.12.0",
