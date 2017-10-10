@@ -50,6 +50,43 @@ function getTotalSurveyBySubmittedDate(startDate, endDate, docType) {
     })
 }
 
+function getTotalResponsePerQuestion(startDate, endDate, docType, question){
+  return Promise
+    .try(() => {
+      var query = [
+        {
+          $match: {
+            responseDate: {
+              $gte: startDate,
+              $lte: endDate
+            },
+            docType: docType
+          }
+        },
+        {
+          $group: {
+            _id: { docType: "$docType", q: "$"+question},
+            count: {
+              $sum: 1
+            }
+          }
+        }
+      ];
+      if (!docType){
+        delete query[0].$match.docType
+      }
+      return model.survey
+        .aggregate(query)
+        .then(function (doc) {
+          return utils.groupByQuestion(doc);
+        })
+        .catch(function(err) {
+          throw err;
+        })
+    })
+}
+
 module.exports = {
-  getTotalSurveyBySubmittedDate: getTotalSurveyBySubmittedDate
+  getTotalSurveyBySubmittedDate: getTotalSurveyBySubmittedDate,
+  getTotalResponsePerQuestion: getTotalResponsePerQuestion
 };

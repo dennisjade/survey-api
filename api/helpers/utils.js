@@ -43,7 +43,37 @@ function groupByDate(doc) {
   return formatForGraph(newDoc);
 }
 
+function groupByQuestion(doc) {
+  let valuesPre = [];
+  let valuesPost = [];
+
+  doc.forEach((item) => {
+    if (!item._id.q) {
+      return;
+    }
+    if (item._id.docType === 'preEvent'){
+      valuesPre.push({
+        values: [item.count],
+        text: item._id.q,
+        fontSize: 9
+      });
+    } else {
+      valuesPost.push({
+        values: [item.count],
+        text: item._id.q,
+        fontSize: 9
+      });
+    }
+
+  });
+
+  return {
+    valuesPre: valuesPre,
+    valuesPost: valuesPost
+  };
+}
 module.exports = {
   groupUniqueAgentsByDate: groupUniqueAgentsByDate,
-  groupByDate: groupByDate
+  groupByDate: groupByDate,
+  groupByQuestion: groupByQuestion
 }
