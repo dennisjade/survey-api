@@ -23,9 +23,34 @@ function surveySubmitted(req, res) {
       ret.data = err;
       res.status(ret.status).json(ret);
     });
+}
+
+function surveyQuestion(req, res) {
+  let startDate = req.swagger.params.dateStart.value;
+  let endDate = req.swagger.params.dateEnd.value;
+  let docType = req.swagger.params.docType.value || '';
+  let question = req.swagger.params.question.value;
+  let ret = {
+    status: 200,
+    message: 'Success',
+    data: {}
+  };
+  surveyModel
+    .getTotalResponsePerQuestion(startDate, endDate, docType, question)
+    .then((doc) => {
+      ret.data = doc;
+      res.json(ret);
+    })
+    .catch((err) => {
+      ret.status = 500;
+      ret.message = 'Error';
+      ret.data = err;
+      res.status(ret.status).json(ret);
+    });
 
 }
 
 module.exports = {
-  surveySubmitted:surveySubmitted
+  surveySubmitted: surveySubmitted,
+  surveyQuestion: surveyQuestion
 };

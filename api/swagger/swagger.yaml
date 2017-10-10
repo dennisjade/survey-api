@@ -55,26 +55,22 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
+  /survey/question:
+    x-swagger-router-controller: survey
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns total list of agents who submitted survey
       # used as the method name of the controller
-      operationId: hello
+      operationId: surveyQuestion
       parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+        - $ref: "#/parameters/StartDate"
+        - $ref: "#/parameters/EndDate"
+        - $ref: "#/parameters/DocTypeNotReq"
+        - $ref: "#/parameters/Question"
       responses:
         "200":
           description: Success
           schema:
-            # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
-        # responses may fall through to errors
+            $ref: "#/definitions/SuccessResponse"
         default:
           description: Error
           schema:
@@ -83,12 +79,6 @@ paths:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
-    required:
-      - message
-    properties:
-      message:
-        type: string
   SuccessResponse:
     required:
       - status
@@ -125,3 +115,16 @@ parameters:
     required: true
     type: string
     enum: [preEvent, postEvent]
+  DocTypeNotReq:
+    name: docType
+    in: query
+    description: The type of survey to search
+    required: false
+    type: string
+    enum: [preEvent, postEvent]
+  Question:
+    name: question
+    in: query
+    description: The survey question
+    required: true
+    type: string
