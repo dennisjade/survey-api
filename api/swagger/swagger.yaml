@@ -17,6 +17,9 @@ consumes:
 # format of the responses to the client (Accepts)
 produces:
   - application/json
+  - application/excel
+  - application/vnd.ms-excel
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 paths:
   /agents/submitted/survey:
     x-swagger-router-controller: agents
@@ -66,6 +69,152 @@ paths:
         - $ref: "#/parameters/EndDate"
         - $ref: "#/parameters/DocTypeNotReq"
         - $ref: "#/parameters/Question"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /survey/response:
+    x-swagger-router-controller: survey
+    get:
+      description: Returns the survey responses
+      operationId: surveyResponse
+      parameters:
+        - $ref: "#/parameters/SubsDTStart"
+        - $ref: "#/parameters/SubsDTEnd"
+        - $ref: "#/parameters/RespDTStart"
+        - $ref: "#/parameters/RespDTEnd"
+        - $ref: "#/parameters/DocTypeNotReq"
+        - $ref: "#/parameters/Username"
+        - $ref: "#/parameters/PageNo"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /survey/status/{status}:
+    x-swagger-router-controller: actions
+    post:
+      description: Approve selected survey responses
+      operationId: setStatus
+      parameters:
+        - $ref: "#/parameters/Status"
+        - in: body
+          name: selectedSurvey
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /survey/download/selected:
+    x-swagger-router-controller: download
+    get:
+      description: Download selected survey responses
+      operationId: downloadSelected
+      parameters:
+        - $ref: "#/parameters/SelectedSurvey"
+      produces:
+        - application/excel
+      responses:
+        200:
+          description: Success
+          headers:
+            Content-type:
+              type: string
+              description: application/excel
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /survey/download/all:
+    x-swagger-router-controller: download
+    get:
+      description: Download selected survey responses
+      operationId: downloadAll
+      parameters:
+        - $ref: "#/parameters/SubsDTStart"
+        - $ref: "#/parameters/SubsDTEnd"
+        - $ref: "#/parameters/RespDTStart"
+        - $ref: "#/parameters/RespDTEnd"
+        - $ref: "#/parameters/DocTypeNotReq"
+        - $ref: "#/parameters/Username"
+        - $ref: "#/parameters/PageNo"
+      produces:
+        - application/excel
+      responses:
+        200:
+          description: Success
+          schema: 
+            type: file
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /user:
+    x-swagger-router-controller: user
+    post:
+      description: Add user
+      operationId: addUser
+      parameters:
+        - $ref: "#/parameters/UserData"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put: 
+      description: Update user
+      operationId: updateUser
+      parameters:
+        - $ref: "#/parameters/UserData"
+        - $ref: "#/parameters/Key"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      description: Delete user
+      operationId: deleteUser
+      parameters:
+        - $ref: "#/parameters/Key"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      description: List all users
+      operationId: listUsers
       responses:
         "200":
           description: Success
@@ -128,3 +277,77 @@ parameters:
     description: The survey question
     required: true
     type: string
+  SubsDTStart:
+    name: subsDTStart
+    in: query
+    description: The start date when agents submitted survey
+    required: false
+    type: string
+  SubsDTEnd:
+    name: subsDTEnd
+    in: query
+    description: The end date when agents submitted survey
+    required: false
+    type: string
+  RespDTStart:
+    name: respDTStart
+    in: query
+    description: The start date when respondent response to survey question
+    required: false
+    type: string
+  RespDTEnd:
+    name: respDTEnd
+    in: query
+    description: The end date when respondent response to survey question
+    required: false
+    type: string
+  Username:
+    name: username
+    in: query
+    description: username of the one who submitted the survey
+    required: false
+    type: string
+  PageNo:
+    name: page
+    in: query
+    description: the page number
+    required: false
+    type: number
+  Status:
+    name: status
+    in: path
+    description: the status to be set
+    required: true
+    type: string
+    enum:
+      - APPROVED
+      - REJECTED
+  SelectedSurvey:
+    name: selectedSurvey
+    in: query
+    required: true
+    type: array
+    items:
+      type: string
+  UserData:
+    name: userdata
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+  Key:
+    name: key
+    in: query
+    required: true
+    type: string
+    
+  

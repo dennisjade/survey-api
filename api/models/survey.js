@@ -1,21 +1,8 @@
 'use strict';
 
 var Promise = require('bluebird');
-// var DB = require('../helpers/db');
 var utils = require('../helpers/utils');
 var model = require('../models/schema');
-// var Schema = DB.mongoose.Schema;
-//
-// // create a schema
-// var surveySchema = new Schema(
-//   {
-//     auditor: { type: String, required: true},
-//     responseDate: { type: String, required: true }
-//   },
-//   {
-//     strict: false
-//   });
-// var survey = DB.mongoose.model('survey', surveySchema);
 
 function getTotalSurveyBySubmittedDate(startDate, endDate, docType) {
   return Promise
@@ -86,7 +73,68 @@ function getTotalResponsePerQuestion(startDate, endDate, docType, question){
     })
 }
 
+function composeSurveyQuestionQuery(params) {
+  let q = {};
+  if (params.startSubsDate) {
+    q  = {
+      syncDate: {
+        $gte: params.startSubsDate,
+        $lte: params.endSubsDate
+      }
+    }
+  } else if (params.startRespDate) {
+    q = {
+      responseDate: {
+        $gte: params.startRespDate,
+        $lte: params.endSubsDate
+      }
+    }
+  } else if (params.username) {
+   q  = {
+     name: { $regex : new RegExp(params.username, "i") }
+   }
+ }
+
+ q.docType = params.docType;
+ return q;
+}
+
+function countTotalSurvey(q) {
+  return Promise
+    .try(() => {
+      return model.survey.count(q)
+        .then(doc => {
+          return doc;
+        })
+  })
+}
+
+function getSurveyQuestions(criteria) {
+  return Promise
+    .try(() => {
+      let q = composeSurveyQuestionQuery(criteria);
+      return model.survey.find(q)
+        .limit(criteria.limit)
+        .skip((criteria.page-1) * 10)
+        .then(doc => {
+          return countTotalSurvey(q)
+            .then(total => {
+              return {
+                doc: doc,
+                total: total,
+                currentPage: criteria.page
+              }
+            })
+
+        })
+        .catch(() => {
+          throw err;
+        })
+    })
+}
+
 module.exports = {
   getTotalSurveyBySubmittedDate: getTotalSurveyBySubmittedDate,
-  getTotalResponsePerQuestion: getTotalResponsePerQuestion
+  getTotalResponsePerQuestion: getTotalResponsePerQuestion,
+  getSurveyQuestions: getSurveyQuestions
 };
