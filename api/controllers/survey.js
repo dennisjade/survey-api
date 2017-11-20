@@ -37,7 +37,7 @@ function surveyQuestion(req, res) {
   };
   surveyModel
     .getTotalResponsePerQuestion(startDate, endDate, docType, question)
-    .then((doc) => {
+    .then(doc => {
       ret.data = doc;
       res.json(ret);
     })
@@ -50,7 +50,33 @@ function surveyQuestion(req, res) {
 
 }
 
+function surveyResponse(req, res) {
+  let criteria = {
+    startSubsDate: req.swagger.params.subsDTStart.value,
+    endSubsDate: req.swagger.params.subsDTEnd.value,
+    startRespDate: req.swagger.params.respDTStart.value,
+    endRespDate: req.swagger.params.respDTEnd.value,
+    username: req.swagger.params.username.value,
+    docType: req.swagger.params.docType.value || 'postEvent',
+    page: req.swagger.params.page.value || 1,
+    limit: req.swagger.params.limit? req.swagger.params.limit.value : 10
+  };
+  let ret = {
+    status: 200,
+    message: 'Success',
+    data: {}
+  };
+  surveyModel
+    .getSurveyQuestions(criteria)
+    .then(doc => {
+      ret.data = doc;
+      res.json(ret);
+    });
+}
+
+
 module.exports = {
   surveySubmitted: surveySubmitted,
-  surveyQuestion: surveyQuestion
+  surveyQuestion: surveyQuestion,
+  surveyResponse: surveyResponse
 };
